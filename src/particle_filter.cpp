@@ -71,7 +71,7 @@ void ParticleFilter::prediction(double delta_t, double std_pos[], double velocit
 		if (fabs(yaw_rate) < 0.00001)
 		{
 			particles[i].x += velocity * delta_t * cos(particles[i].theta);
-			particles[i].y += velocity * delta_t * sin(particles[1].theta);
+			particles[i].y += velocity * delta_t * sin(particles[i].theta);
 		}
 		else
 		{
@@ -96,6 +96,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 	//   observed measurement to this particular landmark.
 	// NOTE: this method will NOT be called by the grading code. But you will probably find it useful to 
 	//   implement this method and use it as a helper during the updateWeights phase.
+	//std::cout << "observations: " << observations.size() << std::endl;
 	for (int i = 0; i < observations.size(); i++)
 	{
 		//current observation
@@ -121,6 +122,7 @@ void ParticleFilter::dataAssociation(std::vector<LandmarkObs> predicted, std::ve
 			}
 		}
 		observations[i].id = mapID;
+		
 	}
 }
 
@@ -160,16 +162,18 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 				predictions.push_back(LandmarkObs{ landMarkID, landMarkX, landMarkY });
 			}
 		}
+		
 
 		//get a copy of the list of observations, transformed from vehicle to map coords.
 		vector<LandmarkObs> transformedObs;
 
-		for (int j = 0; j < transformedObs.size(); j++)
+		for (int j = 0; j < observations.size(); j++)
 		{
 			double transX = cos(partTheta)*observations[j].x - sin(partTheta)*observations[j].y + partX;
 			double transY = sin(partTheta)*observations[j].x + cos(partTheta)*observations[j].y + partY;
 			transformedObs.push_back(LandmarkObs{ observations[j].id, transX, transY });
 		}
+		//std::cout << "transformedObs: " << transformedObs.size() << std::endl;
 
 		//data associateon for the predictions and transformed observations
 		dataAssociation(predictions, transformedObs);
